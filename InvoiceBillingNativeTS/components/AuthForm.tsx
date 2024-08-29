@@ -6,8 +6,16 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { NavigationProps } from "../types/navigation";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+import auth, { app } from "../firebase";
 
 type Props = {
   isLogin: boolean;
@@ -17,18 +25,46 @@ type Props = {
 const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const auth = getAuth(app);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log(isLogin ? "Logging in" : "Signing up", { email, password });
-    // Implement your authentication logic here
+
+    if (isLogin) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          Alert.alert("Success", "Logged in successfully");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          Alert.alert("Error", errorMessage);
+        });
+    } else {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user, "user");
+
+          Alert.alert("Success", "Account created successfully");
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          Alert.alert("Error", errorMessage);
+          // ..
+        });
+    }
   };
 
   const navigateToOtherForm = () => {
-    if (isLogin) {
-      navigation.navigate("Signup");
-    } else {
-      navigation.navigate("Login");
-    }
+    navigation.navigate(isLogin ? "Signup" : "Login");
   };
 
   return (
@@ -58,6 +94,7 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
         <TouchableOpacity
           className="bg-blue-500 py-3 rounded-lg mb-4"
           onPress={handleSubmit}
+          // disabled={loadingLogin || loadingSignup}
         >
           <Text className="text-white text-center font-semibold">
             {isLogin ? "Login" : "Sign Up"}
