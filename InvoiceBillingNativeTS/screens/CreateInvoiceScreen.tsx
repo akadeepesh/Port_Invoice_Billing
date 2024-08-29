@@ -10,6 +10,8 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { addInvoice } from "../services/addInvoice";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 type CreateInvoiceScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -37,9 +39,12 @@ type InvoiceData = {
   };
   description: string;
   amount: string;
+  userId: string;
 };
 
 const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
+  const auth = getAuth();
+  const user = auth.currentUser;
   const [invoice, setInvoice] = useState<InvoiceData>({
     invoiceNumber: "1",
     invoiceDate: new Date(),
@@ -57,6 +62,7 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     },
     description: "",
     amount: "",
+    userId: user ? user.uid : "",
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -123,7 +129,18 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const handleSubmit = () => {
     if (validateForm()) {
       console.log(JSON.stringify(invoice, null, 2));
-      Alert.alert("Success", "Invoice created! Check console for details.");
+      addInvoice(invoice)
+        .then((res: any) => {
+          console.log("Invoice created", res);
+          Alert.alert("Success", "Invoice created! Check console for details.");
+        })
+        .catch((err: any) => {
+          console.error("Error creating invoice", err);
+          Alert.alert(
+            "Error",
+            "Error creating invoice. Check console for details."
+          );
+        });
     }
   };
 
