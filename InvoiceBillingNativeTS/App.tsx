@@ -1,19 +1,42 @@
-import { StatusBar } from "expo-status-bar";
-import { Text, View } from "react-native";
+import React from "react";
 import "./global.css";
-import TestButton from "./components/TestButton";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { TouchableOpacity, Text } from "react-native";
+import { RootStackParamList } from "./types/navigation";
+import HomeScreen from "./screens/HomeScreen";
+import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100">
-      <Text className="text-xl mb-4">
-        Open up App.tsx to start working oyour app!
-      </Text>
-      <TestButton
-        title="Test Button"
-        onPress={() => console.log("Button pressed!")}
-      />
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Home">
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={({ navigation }) => ({
+            title: "Invoice & Billing",
+            headerRight: () => (
+              <>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Login")}
+                  className="mr-4"
+                >
+                  <Text className="text-blue-500 font-semibold">Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
+                  <Text className="text-green-500 font-semibold">Sign Up</Text>
+                </TouchableOpacity>
+              </>
+            ),
+          })}
+        />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
