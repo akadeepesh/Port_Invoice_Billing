@@ -8,7 +8,8 @@ import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import CreateInvoiceScreen from "./screens/CreateInvoiceScreen";
-import ViewInvoiceScreen from "./screens/ViewInvoiceScreen";
+import InvoiceListScreen from "./screens/InvoiceListScreen";
+import InvoiceDetailScreen from "./screens/InvoiceDetailScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,7 +38,8 @@ export default function App() {
           })}
         />
         <Stack.Screen name="CreateInvoice" component={CreateInvoiceScreen} />
-        <Stack.Screen name="ViewInvoice" component={ViewInvoiceScreen} />
+        <Stack.Screen name="InvoiceList" component={InvoiceListScreen} />
+        <Stack.Screen name="InvoiceDetail" component={InvoiceDetailScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
       </Stack.Navigator>
