@@ -10,6 +10,8 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
+import { getAuth } from "firebase/auth";
+import { getInvoicesByUserId } from "../services/getInvoiceByUserId";
 
 type InvoiceListScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
