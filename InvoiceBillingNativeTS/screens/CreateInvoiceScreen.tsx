@@ -6,10 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { Feather } from "@expo/vector-icons";
 
 type CreateInvoiceScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -43,18 +46,8 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const [invoice, setInvoice] = useState<InvoiceData>({
     invoiceNumber: "1",
     invoiceDate: new Date(),
-    billTo: {
-      name: "",
-      address: "",
-      cityStateZip: "",
-      phone: "",
-    },
-    from: {
-      name: "",
-      address: "",
-      cityStateZip: "",
-      phone: "",
-    },
+    billTo: { name: "", address: "", cityStateZip: "", phone: "" },
+    from: { name: "", address: "", cityStateZip: "", phone: "" },
     description: "",
     amount: "",
   });
@@ -62,10 +55,7 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleChange = (name: keyof InvoiceData, value: string | Date) => {
-    setInvoice((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setInvoice((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleNestedChange = (
@@ -75,10 +65,7 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   ) => {
     setInvoice((prev) => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [name]: value,
-      },
+      [section]: { ...prev[section], [name]: value },
     }));
   };
 
@@ -127,132 +114,155 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
+  const renderInput = (
+    label: string,
+    value: string,
+    onChangeText: (text: string) => void,
+    placeholder: string,
+    keyboardType: any = "default"
+  ) => (
+    <View className="mb-4">
+      <Text className="text-gray-600 mb-1">{label}</Text>
+      <TextInput
+        className="border border-gray-300 rounded-lg px-3 py-2 bg-white"
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        keyboardType={keyboardType}
+      />
+    </View>
+  );
+
   return (
-    <ScrollView className="flex-1 bg-white p-4">
-      <Text className="text-2xl font-bold text-center mb-6">
-        CREATE INVOICE
-      </Text>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
+      <ScrollView className="flex-1 px-6 pt-6">
+        <Text className="text-3xl font-bold text-gray-800 mb-6">
+          Create Invoice
+        </Text>
 
-      <View className="flex-row mb-4">
-        <Text className="font-bold w-1/3">INVOICE #:</Text>
-        <TextInput
-          className="flex-1 border border-gray-300 rounded px-2 py-1"
-          value={invoice.invoiceNumber}
-          onChangeText={(value) => handleChange("invoiceNumber", value)}
-          keyboardType="numeric"
-        />
-      </View>
+        <View className="bg-white rounded-xl shadow-md p-6 mb-6">
+          {renderInput(
+            "Invoice Number",
+            invoice.invoiceNumber,
+            (value) => handleChange("invoiceNumber", value),
+            "Enter invoice number",
+            "numeric"
+          )}
 
-      <View className="flex-row mb-4">
-        <Text className="font-bold w-1/3">INVOICE DATE:</Text>
+          <View className="mb-4">
+            <Text className="text-gray-600 mb-1">Invoice Date</Text>
+            <TouchableOpacity
+              className="border border-gray-300 rounded-lg px-3 py-2 bg-white flex-row justify-between items-center"
+              onPress={() => setShowDatePicker(true)}
+            >
+              <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
+              <Feather name="calendar" size={20} color="#4B5563" />
+            </TouchableOpacity>
+          </View>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={invoice.invoiceDate}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+        </View>
+
+        <View className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <Text className="text-xl font-semibold text-gray-800 mb-4">
+            Bill To
+          </Text>
+          {renderInput(
+            "Name",
+            invoice.billTo.name,
+            (value) => handleNestedChange("billTo", "name", value),
+            "Enter name"
+          )}
+          {renderInput(
+            "Address",
+            invoice.billTo.address,
+            (value) => handleNestedChange("billTo", "address", value),
+            "Enter address"
+          )}
+          {renderInput(
+            "City, State, Zip",
+            invoice.billTo.cityStateZip,
+            (value) => handleNestedChange("billTo", "cityStateZip", value),
+            "Enter city, state, zip"
+          )}
+          {renderInput(
+            "Phone",
+            invoice.billTo.phone,
+            (value) => handleNestedChange("billTo", "phone", value),
+            "Enter 10-digit phone number",
+            "phone-pad"
+          )}
+        </View>
+
+        <View className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <Text className="text-xl font-semibold text-gray-800 mb-4">From</Text>
+          {renderInput(
+            "Name",
+            invoice.from.name,
+            (value) => handleNestedChange("from", "name", value),
+            "Enter name"
+          )}
+          {renderInput(
+            "Address",
+            invoice.from.address,
+            (value) => handleNestedChange("from", "address", value),
+            "Enter address"
+          )}
+          {renderInput(
+            "City, State, Zip",
+            invoice.from.cityStateZip,
+            (value) => handleNestedChange("from", "cityStateZip", value),
+            "Enter city, state, zip"
+          )}
+          {renderInput(
+            "Phone",
+            invoice.from.phone,
+            (value) => handleNestedChange("from", "phone", value),
+            "Enter 10-digit phone number",
+            "phone-pad"
+          )}
+        </View>
+
+        <View className="bg-white rounded-xl shadow-md p-6 mb-6">
+          {renderInput(
+            "Description",
+            invoice.description,
+            (value) => handleChange("description", value),
+            "Enter description"
+          )}
+          {renderInput(
+            "Amount",
+            invoice.amount,
+            (value) => handleChange("amount", value),
+            "Enter amount",
+            "numeric"
+          )}
+        </View>
+
         <TouchableOpacity
-          className="flex-1 border border-gray-300 rounded px-2 py-1"
-          onPress={() => setShowDatePicker(true)}
+          className="bg-blue-500 py-3 px-6 rounded-lg flex-row justify-center items-center mb-6"
+          onPress={handleSubmit}
         >
-          <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={invoice.invoiceDate}
-            mode="date"
-            display="default"
-            onChange={handleDateChange}
+          <Feather
+            name="check"
+            size={20}
+            color="white"
+            style={{ marginRight: 8 }}
           />
-        )}
-      </View>
-
-      <View className="mb-6">
-        <Text className="font-bold mb-2">BILL TO:</Text>
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="Name"
-          value={invoice.billTo.name}
-          onChangeText={(value) => handleNestedChange("billTo", "name", value)}
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="Street Address"
-          value={invoice.billTo.address}
-          onChangeText={(value) =>
-            handleNestedChange("billTo", "address", value)
-          }
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="City, State, Zip"
-          value={invoice.billTo.cityStateZip}
-          onChangeText={(value) =>
-            handleNestedChange("billTo", "cityStateZip", value)
-          }
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1"
-          placeholder="Phone (10 digits)"
-          value={invoice.billTo.phone}
-          onChangeText={(value) => handleNestedChange("billTo", "phone", value)}
-          keyboardType="phone-pad"
-          maxLength={10}
-        />
-      </View>
-
-      <View className="mb-6">
-        <Text className="font-bold mb-2">FROM:</Text>
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="Name"
-          value={invoice.from.name}
-          onChangeText={(value) => handleNestedChange("from", "name", value)}
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="Street Address"
-          value={invoice.from.address}
-          onChangeText={(value) => handleNestedChange("from", "address", value)}
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1 mb-2"
-          placeholder="City, State, Zip"
-          value={invoice.from.cityStateZip}
-          onChangeText={(value) =>
-            handleNestedChange("from", "cityStateZip", value)
-          }
-        />
-        <TextInput
-          className="border border-gray-300 rounded px-2 py-1"
-          placeholder="Phone (10 digits)"
-          value={invoice.from.phone}
-          onChangeText={(value) => handleNestedChange("from", "phone", value)}
-          keyboardType="phone-pad"
-          maxLength={10}
-        />
-      </View>
-
-      <View className="flex-row mb-4">
-        <Text className="font-bold w-1/3">Description:</Text>
-        <TextInput
-          className="flex-1 border border-gray-300 rounded px-2 py-1"
-          value={invoice.description}
-          onChangeText={(value) => handleChange("description", value)}
-        />
-      </View>
-
-      <View className="flex-row mb-6">
-        <Text className="font-bold w-1/3">Amount:</Text>
-        <TextInput
-          className="flex-1 border border-gray-300 rounded px-2 py-1"
-          value={invoice.amount}
-          onChangeText={(value) => handleChange("amount", value)}
-          keyboardType="numeric"
-        />
-      </View>
-
-      <TouchableOpacity
-        className="bg-blue-500 p-4 rounded-md items-center"
-        onPress={handleSubmit}
-      >
-        <Text className="text-white font-bold">Create Invoice</Text>
-      </TouchableOpacity>
-    </ScrollView>
+          <Text className="text-white font-semibold text-lg">
+            Create Invoice
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

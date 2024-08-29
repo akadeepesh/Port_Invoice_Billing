@@ -1,4 +1,3 @@
-// types/navigation.ts
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export type RootStackParamList = {
@@ -6,7 +5,8 @@ export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
   CreateInvoice: undefined;
-  ViewInvoice: undefined;
+  InvoiceList: undefined;
+  InvoiceDetail: { invoiceId: string };
 };
 
 export type NavigationProps = NativeStackNavigationProp<RootStackParamList>;

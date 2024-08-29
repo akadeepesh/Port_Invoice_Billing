@@ -45,7 +45,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
         <TouchableOpacity
           className="bg-white rounded-2xl shadow-md overflow-hidden"
-          onPress={() => navigation.navigate("ViewInvoice")}
+          onPress={() => navigation.navigate("InvoiceList")}
         >
           <View className="p-6">
             <View className="flex-row items-center mb-4">
@@ -69,7 +69,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
       </View>
 
       <View className="bg-gray-100 py-4 px-6">
-        <Text className="text-center text-gray-500">© 2023 Invoicer App</Text>
+        <Text className="text-center text-gray-500">© 2024 DeCoders</Text>
       </View>
     </SafeAreaView>
   );
