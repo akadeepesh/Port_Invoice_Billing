@@ -15,7 +15,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 
-import auth, { app } from "../firebase";
+import { app } from "../firebase";
 
 type Props = {
   isLogin: boolean;
@@ -32,11 +32,9 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
 
     if (isLogin) {
       signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        .then(() => {
           // Signed in
-          const user = userCredential.user;
-          Alert.alert("Success", "Logged in successfully");
-          // ...
+          navigation.goBack();
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -45,20 +43,14 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
         });
     } else {
       createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        .then(() => {
           // Signed up
-          const user = userCredential.user;
-          console.log(user, "user");
-
           Alert.alert("Success", "Account created successfully");
-          // ...
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
 
           Alert.alert("Error", errorMessage);
-          // ..
         });
     }
   };
@@ -94,7 +86,6 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
         <TouchableOpacity
           className="bg-blue-500 py-3 rounded-lg mb-4"
           onPress={handleSubmit}
-          // disabled={loadingLogin || loadingSignup}
         >
           <Text className="text-white text-center font-semibold">
             {isLogin ? "Login" : "Sign Up"}
