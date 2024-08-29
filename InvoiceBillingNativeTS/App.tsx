@@ -9,10 +9,15 @@ import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import CreateInvoiceScreen from "./screens/CreateInvoiceScreen";
 import ViewInvoiceScreen from "./screens/ViewInvoiceScreen";
+import { getAuth } from "firebase/auth";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
+  //retrieve the current user
+  const auth = getAuth();
+  const user = auth.currentUser;
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">

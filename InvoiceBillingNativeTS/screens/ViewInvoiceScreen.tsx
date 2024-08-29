@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
+import { getAuth } from "firebase/auth";
+import { getInvoicesByUserId } from "../services/getInvoiceByUserId";
 
 type ViewInvoiceScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -11,8 +13,56 @@ type ViewInvoiceScreenNavigationProp = NativeStackNavigationProp<
 type Props = {
   navigation: ViewInvoiceScreenNavigationProp;
 };
+type InvoiceData = {
+  invoiceNumber: string;
+  invoiceDate: Date;
+  billTo: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  from: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  description: string;
+  amount: string;
+  userId: string;
+};
 
 const ViewInvoiceScreen: React.FC<Props> = ({ navigation }) => {
+  //Invoice for particular user
+  const [invoiceList, setInvoiceList] = useState<InvoiceData[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        try {
+          const invoiceData = await getInvoicesByUserId(user.uid);
+          setInvoiceList(invoiceData);
+        } catch (err) {
+          console.error("Error fetching invoices:", err);
+          setError("Failed to fetch invoices");
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+        setError("No user logged in");
+      }
+    };
+
+    fetchInvoices();
+  }, []);
+
   // Sample invoice data
   const invoice = {
     invoiceNumber: "1",
