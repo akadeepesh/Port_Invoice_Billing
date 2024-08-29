@@ -7,6 +7,8 @@ import { RootStackParamList } from "./types/navigation";
 import HomeScreen from "./screens/HomeScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import CreateInvoiceScreen from "./screens/CreateInvoiceScreen";
+import ViewInvoiceScreen from "./screens/ViewInvoiceScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -34,6 +36,8 @@ export default function App() {
             ),
           })}
         />
+        <Stack.Screen name="CreateInvoice" component={CreateInvoiceScreen} />
+        <Stack.Screen name="ViewInvoice" component={ViewInvoiceScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
       </Stack.Navigator>
