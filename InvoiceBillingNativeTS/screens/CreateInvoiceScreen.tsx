@@ -8,6 +8,7 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
+  FlatList,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
@@ -25,6 +26,12 @@ type Props = {
   navigation: CreateInvoiceScreenNavigationProp;
 };
 
+type InvoiceItem = {
+  id: string;
+  description: string;
+  amount: string;
+};
+
 type InvoiceData = {
   invoiceNumber: string;
   invoiceDate: Date;
@@ -40,8 +47,7 @@ type InvoiceData = {
     cityStateZip: string;
     phone: string;
   };
-  description: string;
-  amount: string;
+  items: InvoiceItem[];
   userId: string;
 };
 
@@ -53,12 +59,16 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     invoiceDate: new Date(),
     billTo: { name: "", address: "", cityStateZip: "", phone: "" },
     from: { name: "", address: "", cityStateZip: "", phone: "" },
-    description: "",
-    amount: "",
+    items: [],
     userId: user ? user.uid : "",
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [newItem, setNewItem] = useState<InvoiceItem>({
+    id: "",
+    description: "",
+    amount: "",
+  });
 
   const handleChange = (name: keyof InvoiceData, value: string | Date) => {
     setInvoice((prev) => ({ ...prev, [name]: value }));
@@ -80,6 +90,28 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     if (selectedDate) {
       handleChange("invoiceDate", selectedDate);
     }
+  };
+
+  const handleAddItem = () => {
+    if (newItem.description && newItem.amount) {
+      setInvoice((prev) => ({
+        ...prev,
+        items: [...prev.items, { ...newItem, id: Date.now().toString() }],
+      }));
+      setNewItem({ id: "", description: "", amount: "" });
+    } else {
+      Alert.alert(
+        "Error",
+        "Please enter both description and amount for the item."
+      );
+    }
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setInvoice((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item.id !== id),
+    }));
   };
 
   const validatePhoneNumber = (phone: string) => {
@@ -106,8 +138,8 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
       );
       return false;
     }
-    if (!invoice.amount || isNaN(parseFloat(invoice.amount))) {
-      Alert.alert("Error", "Please enter a valid amount.");
+    if (invoice.items.length === 0) {
+      Alert.alert("Error", "Please add at least one item to the invoice.");
       return false;
     }
     return true;
@@ -144,6 +176,52 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
         placeholder={placeholder}
         keyboardType={keyboardType}
       />
+    </View>
+  );
+
+  const renderItemInput = () => (
+    <View className="mb-4 bg-gray-100 p-4 rounded-lg">
+      <Text className="text-lg font-semibold mb-2">Add New Item</Text>
+      {renderInput(
+        "Description",
+        newItem.description,
+        (value) => setNewItem((prev) => ({ ...prev, description: value })),
+        "Enter item description"
+      )}
+      {renderInput(
+        "Amount",
+        newItem.amount,
+        (value) => setNewItem((prev) => ({ ...prev, amount: value })),
+        "Enter item amount",
+        "numeric"
+      )}
+      <TouchableOpacity
+        className="bg-green-500 py-2 px-4 rounded-lg flex-row justify-center items-center mt-2"
+        onPress={handleAddItem}
+      >
+        <Feather
+          name="plus"
+          size={20}
+          color="white"
+          style={{ marginRight: 8 }}
+        />
+        <Text className="text-white font-semibold">Add Item</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderItem = ({ item }: { item: InvoiceItem }) => (
+    <View className="flex-row justify-between items-center bg-white p-4 rounded-lg mb-2 shadow-sm">
+      <View className="flex-1 mr-4">
+        <Text className="font-semibold">{item.description}</Text>
+        <Text className="text-gray-600">${item.amount}</Text>
+      </View>
+      <TouchableOpacity
+        className="bg-red-500 p-2 rounded-full"
+        onPress={() => handleRemoveItem(item.id)}
+      >
+        <Feather name="trash-2" size={16} color="white" />
+      </TouchableOpacity>
     </View>
   );
 
@@ -246,19 +324,19 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
-          {renderInput(
-            "Description",
-            invoice.description,
-            (value) => handleChange("description", value),
-            "Enter description"
-          )}
-          {renderInput(
-            "Amount",
-            invoice.amount,
-            (value) => handleChange("amount", value),
-            "Enter amount",
-            "numeric"
-          )}
+          <Text className="text-xl font-semibold text-gray-800 mb-4">
+            Invoice Items
+          </Text>
+          <FlatList
+            data={invoice.items}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={
+              <Text className="text-gray-500 italic">No items added yet.</Text>
+            }
+            className="mb-4"
+          />
+          {renderItemInput()}
         </View>
 
         <TouchableOpacity
