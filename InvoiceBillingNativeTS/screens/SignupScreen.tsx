@@ -2,7 +2,7 @@ import React from "react";
 import AuthForm from "../components/AuthForm";
 import { NavigationProps } from "../types/navigation";
 import { RouteProp } from "@react-navigation/native";
-import { RootStackParamList } from "../types/navigation"; // Make sure this import path is correct
+import { RootStackParamList } from "../types/navigation";
 
 type SignupScreenRouteProp = RouteProp<RootStackParamList, "Signup">;
 
