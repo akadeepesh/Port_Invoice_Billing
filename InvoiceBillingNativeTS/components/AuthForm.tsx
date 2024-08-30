@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import auth from "@react-native-firebase/auth";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+
 import {
   View,
   Text,
@@ -91,76 +90,6 @@ const AuthForm: React.FC<Props> = ({
     }
   };
 
-  // const handleGoogleSignIn = async () => {
-  //   const auth = getAuth();
-  //   setIsLoading(true);
-  //   const provider = new GoogleAuthProvider();
-
-  //   try {
-  //     const result = await signInWithPopup(auth, provider);
-  //     const user = result.user;
-  //     console.log("Successfully authenticated with Google:", user.email);
-
-  //     Alert.alert("Success", "Successfully signed in with Google");
-  //     navigateToReturnScreen();
-  //   } catch (error: any) {
-  //     if (error.code === "auth/account-exists-with-different-credential") {
-  //       Alert.alert(
-  //         "Error",
-  //         "An account already exists with the same email address but different sign-in credentials. Try signing in using a different method."
-  //       );
-  //     } else {
-  //       Alert.alert("Error", error.message);
-  //     }
-  //     console.error("Google authentication error:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-  // const configureGoogleSignIn = () => {
-  //   GoogleSignin.configure({
-  //     webClientId:
-  //       "134355121873-uu8bonlc316ma4qu6gp7a82j6c5osjrm.apps.googleusercontent.com", // Get this from your Google project
-  //   });
-  // };
-
-  // const handleGoogleSignIn = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     // Check if your device supports Google Play
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-  //     // Get the users ID token
-  //     const { idToken } = await GoogleSignin.signIn();
-
-  //     // Create a Google credential with the token
-  //     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-
-  //     // Sign-in the user with the credential
-  //     const userCredential = await auth().signInWithCredential(
-  //       googleCredential
-  //     );
-  //     const user = userCredential.user;
-
-  //     console.log("Successfully authenticated with Google:", user.email);
-  //     Alert.alert("Success", "Successfully signed in with Google");
-  //     navigateToReturnScreen();
-  //   } catch (error: any) {
-  //     if (error.code === "auth/account-exists-with-different-credential") {
-  //       Alert.alert(
-  //         "Error",
-  //         "An account already exists with the same email address but different sign-in credentials. Try signing in using a different method."
-  //       );
-  //     } else {
-  //       Alert.alert("Error", error.message);
-  //     }
-  //     console.error("Google authentication error:", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const navigateToOtherForm = () => {
     navigation.navigate(isLogin ? "Signup" : "Login", {
       returnScreen: returnScreen,
@@ -227,7 +156,9 @@ const AuthForm: React.FC<Props> = ({
         </View>
         <TouchableOpacity
           className="bg-white border border-gray-300 py-4 rounded-lg mb-6 flex-row justify-center items-center"
-          onPress={() => Alert.alert("Feature not implemented")}
+          onPress={() =>
+            Alert.alert("Google auth is not available In this release")
+          }
           disabled={isLoading}
         >
           <Image
