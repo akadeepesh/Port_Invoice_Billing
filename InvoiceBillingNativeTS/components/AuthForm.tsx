@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   View,
   Text,
@@ -89,19 +90,6 @@ const AuthForm: React.FC<Props> = ({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      navigateToReturnScreen();
-    } catch (error: any) {
-      Alert.alert("Error", error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const navigateToOtherForm = () => {
     navigation.navigate(isLogin ? "Signup" : "Login", {
       returnScreen: returnScreen,
@@ -168,7 +156,9 @@ const AuthForm: React.FC<Props> = ({
         </View>
         <TouchableOpacity
           className="bg-white border border-gray-300 py-4 rounded-lg mb-6 flex-row justify-center items-center"
-          onPress={handleGoogleSignIn}
+          onPress={() =>
+            Alert.alert("Google auth is not available In this release")
+          }
           disabled={isLoading}
         >
           <Image
