@@ -43,7 +43,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
+      <Stack.Navigator>
         <Stack.Screen
           name="Home"
           component={HomeScreen}
@@ -53,7 +53,10 @@ export default function App() {
               <>
                 {user ? (
                   <TouchableOpacity
-                    onPress={() => getAuth().signOut()}
+                    onPress={() => {
+                      getAuth().signOut();
+                      navigation.navigate("Home");
+                    }}
                     className="mr-4"
                   >
                     <Text className="text-red-500 font-semibold">Logout</Text>
@@ -79,23 +82,20 @@ export default function App() {
             ),
           })}
         />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen
           name="CreateInvoice"
           component={ProtectedCreateInvoiceScreen}
-          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="InvoiceList"
           component={ProtectedInvoiceListScreen}
-          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="InvoiceDetail"
           component={ProtectedInvoiceDetailScreen}
-          options={{ headerShown: false }}
         />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

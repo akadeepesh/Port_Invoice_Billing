@@ -10,7 +10,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import { NavigationProps } from "../types/navigation";
+import { NavigationProps, RootStackParamList } from "../types/navigation";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -24,20 +24,52 @@ import { app } from "../firebase";
 type Props = {
   isLogin: boolean;
   navigation: NavigationProps;
+  returnScreen?: keyof RootStackParamList;
 };
 
-const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
+const AuthForm: React.FC<Props> = ({
+  isLogin,
+  navigation,
+  returnScreen = "Home",
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const auth = getAuth(app);
+
+  const navigateToReturnScreen = () => {
+    switch (returnScreen) {
+      case "Home":
+        navigation.navigate("Home");
+        break;
+      case "CreateInvoice":
+        navigation.navigate("CreateInvoice");
+        break;
+      case "InvoiceList":
+        navigation.navigate("InvoiceList");
+        break;
+      case "InvoiceDetail":
+        // Assuming InvoiceDetail requires an invoiceId parameter
+        // You might need to adjust this based on your actual requirements
+        navigation.navigate("InvoiceDetail", { invoiceId: "default" });
+        break;
+      case "Login":
+      case "Signup":
+        // These cases shouldn't occur normally, but handle them just in case
+        navigation.navigate(returnScreen, { returnScreen: "Home" });
+        break;
+      default:
+        // If somehow an invalid returnScreen is passed, default to Home
+        navigation.navigate("Home");
+    }
+  };
 
   const handleSubmit = async () => {
     setIsLoading(true);
     if (isLogin) {
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
-          navigation.goBack();
+          navigateToReturnScreen();
         })
         .catch((error) => {
           Alert.alert("Error", error.message);
@@ -46,7 +78,9 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
     } else {
       createUserWithEmailAndPassword(auth, email, password)
         .then(() => {
-          Alert.alert("Success", "Account created successfully");
+          Alert.alert("Success", "Account created successfully", [
+            { text: "OK", onPress: () => navigateToReturnScreen() },
+          ]);
         })
         .catch((error) => {
           Alert.alert("Error", error.message);
@@ -109,7 +143,9 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
   };
 
   const navigateToOtherForm = () => {
-    navigation.navigate(isLogin ? "Signup" : "Login");
+    navigation.navigate(isLogin ? "Signup" : "Login", {
+      returnScreen: returnScreen,
+    });
   };
 
   return (
@@ -119,7 +155,7 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
     >
       <View className="bg-white p-8 rounded-3xl shadow-lg">
         <Image
-          source={require("../assets/favicon.png")}
+          source={require("../assets/icon.png")}
           className="w-24 h-24 mx-auto mb-6"
         />
         <Text className="text-3xl font-bold mb-8 text-center text-blue-600">
