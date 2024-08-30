@@ -55,14 +55,54 @@ const AuthForm: React.FC<Props> = ({ isLogin, navigation }) => {
     }
   };
 
+  // const handleGoogleSignIn = async () => {
+  //   setIsLoading(true);
+  //   const provider = new GoogleAuthProvider();
+  //   try {
+  //     signInWithPopup(auth, provider)
+  //       .then((result) => {
+  //         const credential = GoogleAuthProvider.credentialFromResult(result);
+  //       })
+  //       .catch((error) => {
+  //         // Handle Errors here.
+  //         const errorCode = error.code;
+  //         const errorMessage = error.message;
+  //         // The email of the user's account used.
+  //         Alert.alert("Error", errorMessage);
+  //         const email = error.customData.email;
+  //         // The AuthCredential type that was used.
+  //         Alert.alert("Error", "Emails has been used");
+  //       });
+  //     navigation.goBack();
+  //   } catch (error: any) {
+  //     Alert.alert("Error", error.message);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleGoogleSignIn = async () => {
+    const auth = getAuth();
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
+
     try {
-      await signInWithPopup(auth, provider);
-      navigation.goBack();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("Successfully authenticated with Google:", user.email);
+
+      Alert.alert("Success", "Successfully signed in with Google");
+      // navigateToReturnScreen();
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      if (error.code === "auth/account-exists-with-different-credential") {
+        Alert.alert(
+          "Error",
+          "An account already exists with the same email address but different sign-in credentials. Try signing in using a different method."
+        );
+      } else {
+        Alert.alert("Error", error.message);
+      }
+      console.error("Google authentication error:", error);
     } finally {
       setIsLoading(false);
     }

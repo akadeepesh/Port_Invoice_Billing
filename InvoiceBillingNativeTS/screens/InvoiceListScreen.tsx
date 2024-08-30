@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
@@ -21,32 +22,96 @@ type InvoiceListScreenNavigationProp = NativeStackNavigationProp<
 type Props = {
   navigation: InvoiceListScreenNavigationProp;
 };
+type InvoiceItem = {
+  id: string;
+  description: string;
+  amount: string;
+};
+type InvoiceData = {
+  invoiceNumber: string;
+  invoiceDate: Date;
+  billTo: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  from: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  items: InvoiceItem[];
+  userId: string;
+};
+type DummyInvoiceData = {
+  id: string;
+  title: string;
+  amount: string;
+  date: string;
+  status: string;
+};
 
 const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
   // Sample invoice data (replace with actual data from Firebase later)
-  const invoices = [
-    {
-      id: "1",
-      title: "Invoice #001",
-      amount: "$2,500.00",
-      date: "2024-05-15",
-      status: "Paid",
-    },
-    {
-      id: "2",
-      title: "Invoice #002",
-      amount: "$1,800.00",
-      date: "2024-05-20",
-      status: "Pending",
-    },
-    {
-      id: "3",
-      title: "Invoice #003",
-      amount: "$3,200.00",
-      date: "2024-05-25",
-      status: "Overdue",
-    },
-  ];
+  const [InvoiceList, setInvoiceList] = useState<InvoiceData[] | null>(null);
+  //this is dummy data to resolve the errors.
+  const [Invoices, setInvoices] = useState<DummyInvoiceData[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+
+      if (user) {
+        try {
+          const invoiceData = await getInvoicesByUserId(user.uid);
+          setInvoiceList(invoiceData as InvoiceData[]);
+        } catch (err) {
+          console.error("Error fetching invoices:", err);
+          setError("Failed to fetch invoices");
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+        setError("No user logged in");
+      }
+    };
+
+    fetchInvoices();
+  }, []);
+
+  if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
+
+  // const invoices = getInvoicesByUserId(getAuth().currentUser?.uid);
+
+  // const invoices = [
+  //   {
+  //     id: "1",
+  //     title: "Invoice #001",
+  //     amount: "$2,500.00",
+  //     date: "2024-05-15",
+  //     status: "Paid",
+  //   },
+  //   {
+  //     id: "2",
+  //     title: "Invoice #002",
+  //     amount: "$1,800.00",
+  //     date: "2024-05-20",
+  //     status: "Pending",
+  //   },
+  //   {
+  //     id: "3",
+  //     title: "Invoice #003",
+  //     amount: "$3,200.00",
+  //     date: "2024-05-25",
+  //     status: "Overdue",
+  //   },
+  // ];
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -61,7 +126,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const renderInvoiceItem = ({ item }: { item: (typeof invoices)[0] }) => (
+  const renderInvoiceItem = ({ item }: { item: DummyInvoiceData }) => (
     <TouchableOpacity
       className="bg-white p-4 mb-4 rounded-xl shadow-md"
       onPress={() =>
@@ -94,7 +159,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
           Your Invoices
         </Text>
         <FlatList
-          data={invoices}
+          data={Invoices}
           renderItem={renderInvoiceItem}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
