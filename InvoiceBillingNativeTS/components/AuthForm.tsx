@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { WEB_CLIENT_ID } from "@env";
 
 import {
   View,
@@ -21,6 +22,15 @@ import {
 } from "firebase/auth";
 import { Feather } from "@expo/vector-icons";
 import { app } from "../firebase";
+import { GoogleSignin, statusCodes, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+
+useEffect(()=>{
+  GoogleSignin.configure({
+      webClientId: WEB_CLIENT_ID,
+  })
+},[])
+
+
 
 type Props = {
   isLogin: boolean;
@@ -96,6 +106,24 @@ const AuthForm: React.FC<Props> = ({
     });
   };
 
+  const googleLogin = async () => {
+    try {
+        await GoogleSignin.hasPlayServices();
+        const userInfo = await GoogleSignin.signIn();
+        console.log("userinfo", userInfo);
+
+    } catch (error: any) {
+        if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            console.log(error)
+        } else if (error.code === statusCodes.IN_PROGRESS) {
+            console.log(error)
+        } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            console.log(error)
+        } else {
+        }
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -156,8 +184,10 @@ const AuthForm: React.FC<Props> = ({
         </View>
         <TouchableOpacity
           className="bg-white border border-gray-300 py-4 rounded-lg mb-6 flex-row justify-center items-center"
-          onPress={() =>
-            Alert.alert("Google auth is not available In this release")
+          onPress={
+            googleLogin
+            // () =>
+            // Alert.alert("Google auth is not available In this release")
           }
           disabled={isLoading}
         >

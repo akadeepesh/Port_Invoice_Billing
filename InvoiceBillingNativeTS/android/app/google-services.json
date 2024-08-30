@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "134355121873",
+    "project_id": "trial-quiz-d96ba",
+    "storage_bucket": "trial-quiz-d96ba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:134355121873:android:e059bd9998a9718c5e37f0",
+        "android_client_info": {
+          "package_name": "com.anonymous.InvoiceBillingNativeTS"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "134355121873-t5ubqd61g2odol8anrm47u5iisgoc327.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anonymous.InvoiceBillingNativeTS",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "134355121873-uu8bonlc316ma4qu6gp7a82j6c5osjrm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCO6tewnl1kiDFoexNXytqFYpblNSS23Bo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "134355121873-uu8bonlc316ma4qu6gp7a82j6c5osjrm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
