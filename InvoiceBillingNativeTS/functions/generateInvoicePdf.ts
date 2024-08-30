@@ -1,14 +1,18 @@
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-import RNFS from 'react-native-fs';
+
+import { generateInvoiceHTML } from './generateInvoiceHTML';
+import {printToFileAsync} from 'expo-print';
+import {shareAsync} from 'expo-sharing';
+type InvoiceStatus = "paid" | "pending" | "overdue";
+
 type InvoiceItem = {
   id: string;
   description: string;
-  amount: number;
-  quantity: number;
+  amount: string;
+
 };
-type InvoiceStatus = "paid" | "pending" | "overdue";
 
 type InvoiceData = {
+  id: string;
   invoiceNumber: string;
   invoiceDate: Date;
   dueDate: Date;
@@ -32,21 +36,12 @@ type InvoiceData = {
   status: InvoiceStatus;
 };
 
-export const generateInvoicePDF = async (data: InvoiceData): Promise<string|null|undefined> => {
-  const html = generateInvoiceHTML(data);
+export const generateInvoicePDF = async (data: InvoiceData): Promise<void> => {
+  const html = generateInvoiceHTML(data); 
   
-  try {
-    const options = {
-      html,
-      fileName: `Invoice_${data.invoiceNumber}`,
-      directory: 'Documents',
-    };
+    const file=await printToFileAsync({html:html,base64:false});
+    await shareAsync(file.uri);
+  
 
-    const file = await RNHTMLtoPDF.convert(options);
-    console.log(file.filePath);
-    return file.filePath;
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    throw error;
-  }
+
 };
