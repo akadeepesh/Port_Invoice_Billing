@@ -118,7 +118,7 @@ export const generateInvoiceHTML = (data: InvoiceData): string => {
           <div>
             <h3>From:</h3>
             <p><strong>Name : </strong>${data.from.name}</p>
-            <p>strong>Address : </strong>${data.from.address}</p>
+            <p><strong>Address : </strong>${data.from.address}</p>
             <p><strong>City,State,Zip : </strong>${data.from.cityStateZip}</p>
             <p><strong>Phone : </strong> ${data.from.phone}</p>
           </div>
