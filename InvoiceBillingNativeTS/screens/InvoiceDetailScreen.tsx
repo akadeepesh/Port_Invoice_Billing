@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,13 @@ import {
   StatusBar,
   TouchableOpacity,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
+import { getInvoiceById } from "../services/getInvoiceById";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -28,35 +30,74 @@ type Props = {
   route: InvoiceDetailScreenRouteProp;
 };
 
+type InvoiceStatus = "paid" | "pending" | "overdue";
+
+type FirebaseTimestamp = {
+  seconds: number;
+  nanoseconds: number;
+};
+
+type InvoiceItem = {
+  id: string;
+  description: string;
+  amount: string;
+};
+
+type InvoiceData = {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: FirebaseTimestamp;
+  dueDate: FirebaseTimestamp;
+  billTo: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  from: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  items: InvoiceItem[];
+  subtotal: number;
+  gstAmount: number;
+  totalAmount: number;
+  userId: string;
+  status: InvoiceStatus;
+};
+
 const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { invoiceId } = route.params;
+  const [invoice, setInvoice] = useState<InvoiceData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [isPopupVisible, setPopupVisible] = useState(false);
   const [popupAnimation] = useState(new Animated.Value(0));
 
-  // Fetch invoice details based on invoiceId (replace with actual data from Firebase later)
-  const invoice = {
-    invoiceNumber: invoiceId,
-    invoiceDate: "2024-05-15",
-    dueDate: "2024-06-15",
-    status: "Pending",
-    billTo: {
-      name: "John Doe",
-      address: "123 Main St",
-      cityStateZip: "Anytown, ST 12345",
-      phone: "9999999999",
-    },
-    from: {
-      name: "Your Company",
-      address: "456 Business Ave",
-      cityStateZip: "Cityville, ST 67890",
-      phone: "1111111111",
-    },
-    items: [
-      { description: "Web Development", amount: 2000 },
-      { description: "UI/UX Design", amount: 500 },
-    ],
-    total: 2500,
-  };
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      try {
+        const invoiceData = await getInvoiceById(invoiceId);
+        setInvoice(invoiceData as any);
+      } catch (err) {
+        console.error("Error fetching invoice:", err);
+        setError("Failed to fetch invoice details");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoice();
+  }, [invoiceId]);
+
+  // const formatDate = (date: Date | string) => {
+  //   if (typeof date === "string") {
+  //     return new Date(date).toLocaleDateString();
+  //   }
+  //   return date.toLocaleDateString();
+  // };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -106,6 +147,33 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     outputRange: [300, 0],
   });
 
+  const formatDate = (timestamp: FirebaseTimestamp) => {
+    const date = new Date(timestamp.seconds * 1000);
+    return date.toLocaleDateString();
+  };
+
+  const formatAmount = (amount: number | string) => {
+    return Number(amount).toFixed(2);
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-100">
+        <ActivityIndicator size="large" color="#4F46E5" />
+      </View>
+    );
+  }
+
+  if (error || !invoice) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-100">
+        <Text className="text-xl text-red-500">
+          {error || "Invoice not found"}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <StatusBar barStyle="dark-content" backgroundColor="#F3F4F6" />
@@ -114,7 +182,9 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
             <Feather name="arrow-left" size={24} color="#4B5563" />
           </TouchableOpacity>
-          <Text className="text-3xl font-bold text-gray-800">Invoice</Text>
+          <Text className="text-3xl font-bold text-gray-800">
+            Invoice #{invoice.invoiceNumber}
+          </Text>
           <View
             className={`px-3 py-1 rounded-full ${getStatusColor(
               invoice.status
@@ -136,13 +206,13 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="flex-row justify-between mb-2">
               <Text className="text-gray-600">Invoice Date:</Text>
               <Text className="font-medium text-gray-800">
-                {invoice.invoiceDate}
+                {formatDate(invoice.invoiceDate)}
               </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Due Date:</Text>
               <Text className="font-medium text-gray-800">
-                {invoice.dueDate}
+                {formatDate(invoice.dueDate)}
               </Text>
             </View>
           </>
@@ -181,24 +251,39 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <>
             {invoice.items.map((item, index) => (
               <View
-                key={index}
+                key={item.id}
                 className="flex-row justify-between mb-2 pb-2 border-b border-gray-200"
               >
                 <Text className="text-gray-600">{item.description}</Text>
                 <Text className="font-medium text-gray-800">
-                  ${item.amount.toFixed(2)}
+                  ${formatAmount(item.amount)}
                 </Text>
               </View>
             ))}
             <View className="mt-4 pt-4 flex-row justify-between items-center">
-              <Text className="text-lg font-semibold text-gray-800">Total</Text>
+              <Text className="text-lg font-semibold text-gray-800">
+                Subtotal
+              </Text>
+              <Text className="text-xl font-bold text-gray-800">
+                ${formatAmount(invoice.subtotal)}
+              </Text>
+            </View>
+            <View className="mt-2 flex-row justify-between items-center">
+              <Text className="text-lg font-semibold text-gray-800">GST</Text>
+              <Text className="text-xl font-bold text-gray-800">
+                ${formatAmount(invoice.gstAmount)}
+              </Text>
+            </View>
+            <View className="mt-4 pt-4 border-t border-gray-200 flex-row justify-between items-center">
+              <Text className="text-xl font-semibold text-gray-800">Total</Text>
               <Text className="text-2xl font-bold text-blue-600">
-                ${invoice.total.toFixed(2)}
+                ${formatAmount(invoice.totalAmount)}
               </Text>
             </View>
           </>
         )}
       </ScrollView>
+
       {!isPopupVisible && (
         <TouchableOpacity
           className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
@@ -255,7 +340,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 color="white"
                 style={{ marginRight: 16 }}
               />
-              <Text className="text-lg font-semibold text-gray-100">Email</Text>
+              <Text className="text-lg font-semibold text-white">Email</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-red-400 py-4 px-6 rounded-xl mt-2 shadow-md"

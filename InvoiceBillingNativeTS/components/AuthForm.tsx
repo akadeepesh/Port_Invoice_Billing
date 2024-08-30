@@ -49,11 +49,6 @@ const AuthForm: React.FC<Props> = ({
       case "InvoiceList":
         navigation.navigate("InvoiceList");
         break;
-      case "InvoiceDetail":
-        // Assuming InvoiceDetail requires an invoiceId parameter
-        // You might need to adjust this based on your actual requirements
-        navigation.navigate("InvoiceDetail", { invoiceId: "default" });
-        break;
       case "Login":
       case "Signup":
         // These cases shouldn't occur normally, but handle them just in case

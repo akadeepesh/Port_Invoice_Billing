@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -32,9 +32,12 @@ type InvoiceItem = {
   amount: string;
 };
 
+type InvoiceStatus = "paid" | "pending" | "overdue";
+
 type InvoiceData = {
   invoiceNumber: string;
   invoiceDate: Date;
+  dueDate: Date;
   billTo: {
     name: string;
     address: string;
@@ -48,10 +51,14 @@ type InvoiceData = {
     phone: string;
   };
   items: InvoiceItem[];
+  subtotal: number;
+  gstAmount: number;
   totalAmount: number;
   userId: string;
-  status?: string;
+  status: InvoiceStatus;
 };
+
+const GST_RATE = 0.08; // 8% GST
 
 const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const auth = getAuth();
@@ -59,11 +66,15 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const [invoice, setInvoice] = useState<InvoiceData>({
     invoiceNumber: "1",
     invoiceDate: new Date(),
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
     billTo: { name: "", address: "", cityStateZip: "", phone: "" },
     from: { name: "", address: "", cityStateZip: "", phone: "" },
     items: [],
+    subtotal: 0,
+    gstAmount: 0,
     totalAmount: 0,
     userId: user ? user.uid : "",
+    status: "pending",
   });
 
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -72,6 +83,26 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     description: "",
     amount: "",
   });
+
+  useEffect(() => {
+    calculateTotals();
+  }, [invoice.items]);
+
+  const calculateTotals = () => {
+    const subtotal = invoice.items.reduce(
+      (total, item) => total + parseFloat(item.amount || "0"),
+      0
+    );
+    const gstAmount = subtotal * GST_RATE;
+    const totalAmount = subtotal + gstAmount;
+
+    setInvoice((prev) => ({
+      ...prev,
+      subtotal,
+      gstAmount,
+      totalAmount,
+    }));
+  };
 
   const handleChange = (name: keyof InvoiceData, value: string | Date) => {
     setInvoice((prev) => ({ ...prev, [name]: value }));
@@ -92,6 +123,9 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     setShowDatePicker(false);
     if (selectedDate) {
       handleChange("invoiceDate", selectedDate);
+      const newDueDate = new Date(selectedDate);
+      newDueDate.setDate(newDueDate.getDate() + 30);
+      handleChange("dueDate", newDueDate);
     }
   };
 
@@ -150,7 +184,16 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      addInvoice(invoice)
+      const statuses: InvoiceStatus[] = ["paid", "pending", "overdue"];
+      const randomStatus =
+        statuses[Math.floor(Math.random() * statuses.length)];
+
+      const finalInvoice = {
+        ...invoice,
+        status: randomStatus,
+      };
+
+      addInvoice(finalInvoice)
         .then((res: any) => {
           console.log("Invoice created", res);
           Alert.alert("Success", "Invoice created successfully!");
@@ -341,6 +384,30 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
           />
           {renderItemInput()}
         </View>
+
+        {/* <View className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <Text className="text-xl font-semibold text-gray-800 mb-4">
+            Invoice Summary
+          </Text>
+          <View className="flex-row justify-between mb-2">
+            <Text className="text-gray-600">Subtotal:</Text>
+            <Text className="font-medium text-gray-800">
+              ${invoice.subtotal.toFixed(2)}
+            </Text>
+          </View>
+          <View className="flex-row justify-between mb-2">
+            <Text className="text-gray-600">GST ({GST_RATE * 100}%):</Text>
+            <Text className="font-medium text-gray-800">
+              ${invoice.gstAmount.toFixed(2)}
+            </Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text className="text-lg font-semibold text-gray-800">Total:</Text>
+            <Text className="text-xl font-bold text-blue-600">
+              ${invoice.totalAmount.toFixed(2)}
+            </Text>
+          </View>
+        </View> */}
 
         <TouchableOpacity
           className="bg-blue-500 py-3 px-6 rounded-lg flex-row justify-center items-center mb-12"
