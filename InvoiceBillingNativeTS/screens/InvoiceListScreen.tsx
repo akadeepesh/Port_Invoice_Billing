@@ -28,6 +28,7 @@ type InvoiceItem = {
   amount: string;
 };
 type InvoiceData = {
+  id: string;
   invoiceNumber: string;
   invoiceDate: Date;
   billTo: {
@@ -43,6 +44,8 @@ type InvoiceData = {
     phone: string;
   };
   items: InvoiceItem[];
+  totalAmount: number;
+  status: string;
   userId: string;
 };
 type DummyInvoiceData = {
@@ -126,7 +129,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
     }
   };
 
-  const renderInvoiceItem = ({ item }: { item: DummyInvoiceData }) => (
+  const renderInvoiceItem = ({ item }: { item: InvoiceData }) => (
     <TouchableOpacity
       className="bg-white p-4 mb-4 rounded-xl shadow-md"
       onPress={() =>
@@ -135,7 +138,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
     >
       <View className="flex-row justify-between items-center mb-2">
         <Text className="text-lg font-semibold text-gray-800">
-          {item.title}
+          {item.invoiceNumber}
         </Text>
         <View
           className={`px-2 py-1 rounded-full ${getStatusColor(item.status)}`}
@@ -143,9 +146,11 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
           <Text className="text-white font-medium">{item.status}</Text>
         </View>
       </View>
-      <Text className="text-gray-600 mb-2">{item.date}</Text>
+      <Text className="text-gray-600 mb-2">{item.invoiceDate.toString()}</Text>
       <View className="flex-row justify-between items-center">
-        <Text className="text-2xl font-bold text-gray-800">{item.amount}</Text>
+        <Text className="text-2xl font-bold text-gray-800">
+          {item.totalAmount}
+        </Text>
         <Feather name="chevron-right" size={24} color="#9CA3AF" />
       </View>
     </TouchableOpacity>
@@ -159,7 +164,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
           Your Invoices
         </Text>
         <FlatList
-          data={Invoices}
+          data={InvoiceList}
           renderItem={renderInvoiceItem}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}

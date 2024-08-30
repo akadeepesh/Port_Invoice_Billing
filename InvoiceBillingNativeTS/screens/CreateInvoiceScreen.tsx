@@ -48,7 +48,9 @@ type InvoiceData = {
     phone: string;
   };
   items: InvoiceItem[];
+  totalAmount: number;
   userId: string;
+  status?: string;
 };
 
 const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
@@ -60,6 +62,7 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
     billTo: { name: "", address: "", cityStateZip: "", phone: "" },
     from: { name: "", address: "", cityStateZip: "", phone: "" },
     items: [],
+    totalAmount: 0,
     userId: user ? user.uid : "",
   });
 
