@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
+import { getInvoiceById } from "../services/getInvoiceById";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -27,6 +28,32 @@ type Props = {
   navigation: InvoiceDetailScreenNavigationProp;
   route: InvoiceDetailScreenRouteProp;
 };
+type InvoiceItem = {
+  id: string;
+  description: string;
+  amount: string;
+};
+type InvoiceData = {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: Date;
+  billTo: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  from: {
+    name: string;
+    address: string;
+    cityStateZip: string;
+    phone: string;
+  };
+  items: InvoiceItem[];
+  totalAmount: number;
+  status: string;
+  userId: string;
+};
 
 const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { invoiceId } = route.params;
@@ -34,32 +61,51 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [popupAnimation] = useState(new Animated.Value(0));
 
   // Fetch invoice details based on invoiceId (replace with actual data from Firebase later)
-  const invoice = {
-    invoiceNumber: invoiceId,
-    invoiceDate: "2024-05-15",
-    dueDate: "2024-06-15",
-    status: "Pending",
-    billTo: {
-      name: "John Doe",
-      address: "123 Main St",
-      cityStateZip: "Anytown, ST 12345",
-      phone: "9999999999",
-    },
-    from: {
-      name: "Your Company",
-      address: "456 Business Ave",
-      cityStateZip: "Cityville, ST 67890",
-      phone: "1111111111",
-    },
-    items: [
-      { description: "Web Development", amount: 2000 },
-      { description: "UI/UX Design", amount: 500 },
-    ],
-    total: 2500,
-  };
+  // const invoice = {
+  //   invoiceNumber: invoiceId,
+  //   invoiceDate: "2024-05-15",
+  //   dueDate: "2024-06-15",
+  //   status: "Pending",
+  //   billTo: {
+  //     name: "John Doe",
+  //     address: "123 Main St",
+  //     cityStateZip: "Anytown, ST 12345",
+  //     phone: "9999999999",
+  //   },
+  //   from: {
+  //     name: "Your Company",
+  //     address: "456 Business Ave",
+  //     cityStateZip: "Cityville, ST 67890",
+  //     phone: "1111111111",
+  //   },
+  //   items: [
+  //     { description: "Web Development", amount: 2000 },
+  //     { description: "UI/UX Design", amount: 500 },
+  //   ],
+  //   total: 2500,
+  // };
+  const [invoice, setInvoice] = useState({} as InvoiceData);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      try {
+        const res = await getInvoiceById(invoiceId);
+        setInvoice(res);
+      } catch (err) {
+        console.error("Error fetching invoices:", err);
+        setError("Failed to fetch invoices");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoices();
+  }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "bg-green-500";
       case "pending":
@@ -136,13 +182,13 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="flex-row justify-between mb-2">
               <Text className="text-gray-600">Invoice Date:</Text>
               <Text className="font-medium text-gray-800">
-                {invoice.invoiceDate}
+                {invoice?.invoiceDate?.toString()}
               </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="text-gray-600">Due Date:</Text>
               <Text className="font-medium text-gray-800">
-                {invoice.dueDate}
+                {invoice?.invoiceDate?.toString()}
               </Text>
             </View>
           </>
@@ -152,12 +198,14 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           "Bill To",
           <>
             <Text className="font-medium text-gray-800 mb-1">
-              {invoice.billTo.name}
+              {invoice?.billTo?.name}
             </Text>
-            <Text className="text-gray-600">{invoice.billTo.address}</Text>
-            <Text className="text-gray-600">{invoice.billTo.cityStateZip}</Text>
+            <Text className="text-gray-600">{invoice?.billTo?.address}</Text>
+            <Text className="text-gray-600">
+              {invoice?.billTo?.cityStateZip}
+            </Text>
             <Text className="text-gray-600 mt-2">
-              Phone: {invoice.billTo.phone}
+              Phone: {invoice?.billTo?.phone}
             </Text>
           </>
         )}
@@ -166,12 +214,12 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           "From",
           <>
             <Text className="font-medium text-gray-800 mb-1">
-              {invoice.from.name}
+              {invoice?.from?.name}
             </Text>
-            <Text className="text-gray-600">{invoice.from.address}</Text>
-            <Text className="text-gray-600">{invoice.from.cityStateZip}</Text>
+            <Text className="text-gray-600">{invoice?.from?.address}</Text>
+            <Text className="text-gray-600">{invoice?.from?.cityStateZip}</Text>
             <Text className="text-gray-600 mt-2">
-              Phone: {invoice.from.phone}
+              Phone: {invoice?.from?.phone}
             </Text>
           </>
         )}
@@ -179,21 +227,21 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {renderSection(
           "Invoice Items",
           <>
-            {invoice.items.map((item, index) => (
+            {invoice?.items?.map((item, index) => (
               <View
                 key={index}
                 className="flex-row justify-between mb-2 pb-2 border-b border-gray-200"
               >
                 <Text className="text-gray-600">{item.description}</Text>
-                <Text className="font-medium text-gray-800">
+                {/* <Text className="font-medium text-gray-800">
                   ${item.amount.toFixed(2)}
-                </Text>
+                </Text> */}
               </View>
             ))}
             <View className="mt-4 pt-4 flex-row justify-between items-center">
               <Text className="text-lg font-semibold text-gray-800">Total</Text>
               <Text className="text-2xl font-bold text-blue-600">
-                ${invoice.total.toFixed(2)}
+                ${invoice.totalAmount.toFixed(2)}
               </Text>
             </View>
           </>

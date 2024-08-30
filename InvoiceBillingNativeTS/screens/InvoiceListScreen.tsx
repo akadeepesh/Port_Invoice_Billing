@@ -117,7 +117,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
   // ];
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "bg-green-500";
       case "pending":
