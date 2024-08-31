@@ -8,12 +8,14 @@ import {
   TouchableOpacity,
   Animated,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
 import { getInvoiceById } from "../services/getInvoiceById";
+import { generateInvoicePDF } from "../functions/generateInvoicePdf";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -32,11 +34,6 @@ type Props = {
 
 type InvoiceStatus = "paid" | "pending" | "overdue";
 
-type FirebaseTimestamp = {
-  seconds: number;
-  nanoseconds: number;
-};
-
 type InvoiceItem = {
   id: string;
   description: string;
@@ -46,8 +43,8 @@ type InvoiceItem = {
 type InvoiceData = {
   id: string;
   invoiceNumber: string;
-  invoiceDate: FirebaseTimestamp;
-  dueDate: FirebaseTimestamp;
+  invoiceDate: Date;
+  dueDate: Date;
   billTo: {
     name: string;
     address: string;
@@ -92,12 +89,14 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     fetchInvoice();
   }, [invoiceId]);
 
-  // const formatDate = (date: Date | string) => {
-  //   if (typeof date === "string") {
-  //     return new Date(date).toLocaleDateString();
-  //   }
-  //   return date.toLocaleDateString();
-  // };
+  const formatDate = (date: Date | string | any) => {
+    console.log(typeof date);
+    if (typeof date === "string") {
+      console.log("Converting string to date", date);
+      return date;
+    }
+    return date.toLocaleDateString();
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -112,9 +111,16 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
-  const handleDownloadOption = (option: string) => {
+  const handleDownloadOption = async (option: string) => {
     // Implement the logic for each download option
     console.log(`Selected option: ${option}`);
+    if (option === "Print") {
+      await generateInvoicePDF(invoice as InvoiceData);
+    } else if (option === "Save to Cloud") {
+      Alert.alert("Your file has successfully Saved to Cloud");
+    } else if (option === "Email") {
+      console.log("Email");
+    }
     hidePopup();
   };
 
@@ -146,11 +152,6 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     inputRange: [0, 1],
     outputRange: [300, 0],
   });
-
-  const formatDate = (timestamp: FirebaseTimestamp) => {
-    const date = new Date(timestamp.seconds * 1000);
-    return date.toLocaleDateString();
-  };
 
   const formatAmount = (amount: number | string) => {
     return Number(amount).toFixed(2);
@@ -221,28 +222,60 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {renderSection(
           "Bill To",
           <>
-            <Text className="font-medium text-gray-800 mb-1">
-              {invoice.billTo.name}
-            </Text>
-            <Text className="text-gray-600">{invoice.billTo.address}</Text>
-            <Text className="text-gray-600">{invoice.billTo.cityStateZip}</Text>
-            <Text className="text-gray-600 mt-2">
-              Phone: {invoice.billTo.phone}
-            </Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Name :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.billTo.name}
+              </Text>
+            </View>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Address :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.billTo.address}
+              </Text>
+            </View>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">City, State, Zip :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.billTo.cityStateZip}
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <Text className="text-gray-600">Phone :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.billTo.phone}
+              </Text>
+            </View>
           </>
         )}
 
         {renderSection(
           "From",
           <>
-            <Text className="font-medium text-gray-800 mb-1">
-              {invoice.from.name}
-            </Text>
-            <Text className="text-gray-600">{invoice.from.address}</Text>
-            <Text className="text-gray-600">{invoice.from.cityStateZip}</Text>
-            <Text className="text-gray-600 mt-2">
-              Phone: {invoice.from.phone}
-            </Text>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Name :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.from.name}
+              </Text>
+            </View>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">Address :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.from.address}
+              </Text>
+            </View>
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-gray-600">City, State, Zip :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.from.cityStateZip}
+              </Text>
+            </View>
+            <View className="flex-row justify-between">
+              <Text className="text-gray-600">Phone :</Text>
+              <Text className="font-medium text-gray-800">
+                {invoice.from.phone}
+              </Text>
+            </View>
           </>
         )}
 
