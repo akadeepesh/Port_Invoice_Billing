@@ -16,6 +16,7 @@ import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
 import { getInvoiceById } from "../services/getInvoiceById";
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
+import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -119,7 +120,8 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     } else if (option === "Save to Cloud") {
       Alert.alert("Your file has successfully Saved to Cloud");
     } else if (option === "Email") {
-      console.log("Email");
+      await sendInvoiceByEmail(invoice as InvoiceData);
+      Alert.alert("Your file has successfully sent to Email");
     }
     hidePopup();
   };
