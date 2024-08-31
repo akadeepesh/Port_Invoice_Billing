@@ -39,8 +39,8 @@ type InvoiceItem = {
 type InvoiceData = {
   id: string;
   invoiceNumber: string;
-  invoiceDate: FirebaseTimestamp;
-  dueDate: FirebaseTimestamp;
+  invoiceDate: Date;
+  dueDate: Date;
   billTo: {
     name: string;
     address: string;
@@ -66,8 +66,12 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const formatDate = (timestamp: FirebaseTimestamp) => {
-    const date = new Date(timestamp.seconds * 1000);
+  const formatDate = (date: Date | string | any) => {
+    console.log(typeof date);
+    if (typeof date === "string") {
+      console.log("Converting string to date", date);
+      return date;
+    }
     return date.toLocaleDateString();
   };
 
@@ -100,7 +104,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
   }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "bg-green-500";
       case "pending":

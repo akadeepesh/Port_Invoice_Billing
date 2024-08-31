@@ -36,8 +36,8 @@ type InvoiceStatus = "paid" | "pending" | "overdue";
 
 type InvoiceData = {
   invoiceNumber: string;
-  invoiceDate: Date;
-  dueDate: Date;
+  invoiceDate: string;
+  dueDate: string;
   billTo: {
     name: string;
     address: string;
@@ -65,8 +65,10 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
   const user = auth.currentUser;
   const [invoice, setInvoice] = useState<InvoiceData>({
     invoiceNumber: "1",
-    invoiceDate: new Date(),
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+    invoiceDate: new Date().toLocaleDateString(),
+    dueDate: new Date(
+      new Date().setDate(new Date().getDate() + 30)
+    ).toLocaleDateString(),
     billTo: { name: "", address: "", cityStateZip: "", phone: "" },
     from: { name: "", address: "", cityStateZip: "", phone: "" },
     items: [],
@@ -294,7 +296,7 @@ const CreateInvoiceScreen: React.FC<Props> = ({ navigation }) => {
               className="border border-gray-300 rounded-lg px-3 py-2 bg-white flex-row justify-between items-center"
               onPress={() => setShowDatePicker(true)}
             >
-              <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
+              <Text>{invoice.invoiceDate}</Text>
               <Feather name="calendar" size={20} color="#4B5563" />
             </TouchableOpacity>
           </View>
