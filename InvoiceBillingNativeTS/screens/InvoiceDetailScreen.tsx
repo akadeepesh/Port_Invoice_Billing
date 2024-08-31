@@ -27,7 +27,7 @@ import {
 import UpdateInvoiceScreen from "./UpdateInvoiceScreen";
 
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
-
+import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -89,7 +89,6 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     fetchInvoice();
   }, [invoiceId]);
 
-
   const fetchInvoice = async () => {
     try {
       setLoading(true);
@@ -101,6 +100,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     } finally {
       setLoading(false);
     }
+  };
 
   const formatDate = (date: Date | string | any) => {
     console.log(typeof date);
@@ -109,7 +109,6 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       return date;
     }
     return date.toLocaleDateString();
-
   };
 
   const getStatusColor = (status: string) => {
@@ -133,7 +132,8 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     } else if (option === "Save to Cloud") {
       Alert.alert("Your file has successfully Saved to Cloud");
     } else if (option === "Email") {
-      console.log("Email");
+      await sendInvoiceByEmail(invoice as InvoiceData);
+      Alert.alert("Your file has successfully sent to Email");
     }
     hidePopup();
   };
