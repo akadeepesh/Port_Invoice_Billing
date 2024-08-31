@@ -10,12 +10,15 @@ import SignupScreen from "./screens/SignupScreen";
 import CreateInvoiceScreen from "./screens/CreateInvoiceScreen";
 import InvoiceListScreen from "./screens/InvoiceListScreen";
 import InvoiceDetailScreen from "./screens/InvoiceDetailScreen";
+import UpdateInvoiceScreen from "./screens/UpdateInvoiceScreen";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { withAuthCheck } from "./withAuthCheck";
+import { MenuProvider } from "react-native-popup-menu";
 
 const ProtectedCreateInvoiceScreen = withAuthCheck(CreateInvoiceScreen);
 const ProtectedInvoiceListScreen = withAuthCheck(InvoiceListScreen);
 const ProtectedInvoiceDetailScreen = withAuthCheck(InvoiceDetailScreen);
+const ProtectedUpdateInvoiceScreen = withAuthCheck(UpdateInvoiceScreen);
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,60 +46,68 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={({ navigation }) => ({
-            title: "Invoice & Billing",
-            headerRight: () => (
-              <>
-                {user ? (
-                  <TouchableOpacity
-                    onPress={() => {
-                      getAuth().signOut();
-                      navigation.navigate("Home");
-                    }}
-                    className="mr-4"
-                  >
-                    <Text className="text-red-500 font-semibold">Logout</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <>
+      <MenuProvider>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={({ navigation }) => ({
+              title: "Invoice & Billing",
+              headerRight: () => (
+                <>
+                  {user ? (
                     <TouchableOpacity
-                      onPress={() => navigation.navigate("Login")}
+                      onPress={() => {
+                        getAuth().signOut();
+                        navigation.navigate("Home");
+                      }}
                       className="mr-4"
                     >
-                      <Text className="text-blue-500 font-semibold">Login</Text>
+                      <Text className="text-red-500 font-semibold">Logout</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate("Signup")}
-                    >
-                      <Text className="text-green-500 font-semibold">
-                        Sign Up
-                      </Text>
-                    </TouchableOpacity>
-                  </>
-                )}
-              </>
-            ),
-          })}
-        />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Signup" component={SignupScreen} />
-        <Stack.Screen
-          name="CreateInvoice"
-          component={ProtectedCreateInvoiceScreen}
-        />
-        <Stack.Screen
-          name="InvoiceList"
-          component={ProtectedInvoiceListScreen}
-        />
-        <Stack.Screen
-          name="InvoiceDetail"
-          component={ProtectedInvoiceDetailScreen}
-        />
-      </Stack.Navigator>
+                  ) : (
+                    <>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate("Login")}
+                        className="mr-4"
+                      >
+                        <Text className="text-blue-500 font-semibold">
+                          Login
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => navigation.navigate("Signup")}
+                      >
+                        <Text className="text-green-500 font-semibold">
+                          Sign Up
+                        </Text>
+                      </TouchableOpacity>
+                    </>
+                  )}
+                </>
+              ),
+            })}
+          />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen
+            name="CreateInvoice"
+            component={ProtectedCreateInvoiceScreen}
+          />
+          <Stack.Screen
+            name="InvoiceList"
+            component={ProtectedInvoiceListScreen}
+          />
+          <Stack.Screen
+            name="InvoiceDetail"
+            component={ProtectedInvoiceDetailScreen}
+          />
+          <Stack.Screen
+            name="UpdateInvoice"
+            component={ProtectedUpdateInvoiceScreen}
+          />
+        </Stack.Navigator>
+      </MenuProvider>
     </NavigationContainer>
   );
 }
