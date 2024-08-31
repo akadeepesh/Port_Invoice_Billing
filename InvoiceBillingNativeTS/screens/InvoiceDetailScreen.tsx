@@ -15,6 +15,17 @@ import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
 import { getInvoiceById } from "../services/getInvoiceById";
+
+import { deleteInvoice } from "../services/deleteInvoice";
+import { updateInvoice } from "../services/updateInvoice";
+import {
+  Menu,
+  MenuOptions,
+  MenuOption,
+  MenuTrigger,
+} from "react-native-popup-menu";
+import UpdateInvoiceScreen from "./UpdateInvoiceScreen";
+
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
 import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
 
@@ -75,20 +86,21 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [popupAnimation] = useState(new Animated.Value(0));
 
   useEffect(() => {
-    const fetchInvoice = async () => {
-      try {
-        const invoiceData = await getInvoiceById(invoiceId);
-        setInvoice(invoiceData as any);
-      } catch (err) {
-        console.error("Error fetching invoice:", err);
-        setError("Failed to fetch invoice details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchInvoice();
   }, [invoiceId]);
+
+  const fetchInvoice = async () => {
+    try {
+      setLoading(true);
+      const invoiceData = await getInvoiceById(invoiceId);
+      setInvoice(invoiceData as any);
+    } catch (err) {
+      console.error("Error fetching invoice:", err);
+      setError("Failed to fetch invoice details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatDate = (date: Date | string | any) => {
     console.log(typeof date);
@@ -159,6 +171,35 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     return Number(amount).toFixed(2);
   };
 
+  const handleDeleteInvoice = () => {
+    Alert.alert(
+      "Delete Invoice",
+      "Are you sure you want to delete this invoice?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteInvoice(invoiceId);
+              navigation.goBack();
+            } catch (err) {
+              console.error("Error deleting invoice:", err);
+              Alert.alert("Error", "Failed to delete the invoice");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleUpdateInvoice = () => {
+    navigation.navigate("UpdateInvoice", {
+      invoiceId: invoice?.id,
+    });
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
@@ -182,18 +223,57 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#F3F4F6" />
       <ScrollView className="flex-1 px-4 py-6">
         <View className="flex-row justify-between items-center mb-6">
-          <TouchableOpacity onPress={() => navigation.goBack()} className="p-2">
-            <Feather name="arrow-left" size={24} color="#4B5563" />
-          </TouchableOpacity>
-          <Text className="text-3xl font-bold text-gray-800">
-            Invoice #{invoice.invoiceNumber}
-          </Text>
           <View
             className={`px-3 py-1 rounded-full ${getStatusColor(
               invoice.status
             )}`}
           >
             <Text className="text-white font-medium">{invoice.status}</Text>
+          </View>
+          <Text className="text-3xl font-bold text-gray-800">
+            Invoice #{invoice.invoiceNumber}
+          </Text>
+          <View className="relative">
+            <Menu>
+              <MenuTrigger
+                customStyles={{
+                  triggerWrapper: {
+                    padding: 8,
+                  },
+                }}
+              >
+                <Feather name="more-vertical" size={24} color="#4B5563" />
+              </MenuTrigger>
+              <MenuOptions
+                customStyles={{
+                  optionsContainer: {
+                    width: 200,
+                    marginTop: 40,
+                    right: 0,
+                  },
+                }}
+              >
+                <View className="bg-white rounded-xl shadow-lg overflow-hidden">
+                  <MenuOption onSelect={handleUpdateInvoice}>
+                    <View className="flex-row items-center p-3">
+                      <Feather name="edit" size={20} color="#EAB308" />
+                      <Text className="ml-3 text-gray-800 font-semibold">
+                        Update Invoice
+                      </Text>
+                    </View>
+                  </MenuOption>
+                  <View className="border-b border-gray-200" />
+                  <MenuOption onSelect={handleDeleteInvoice}>
+                    <View className="flex-row items-center p-3">
+                      <Feather name="trash-2" size={20} color="#EF4444" />
+                      <Text className="ml-3 text-gray-800 font-semibold">
+                        Delete Invoice
+                      </Text>
+                    </View>
+                  </MenuOption>
+                </View>
+              </MenuOptions>
+            </Menu>
           </View>
         </View>
 
