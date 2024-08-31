@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Signup: { returnScreen?: keyof RootStackParamList };
   CreateInvoice: undefined;
   InvoiceList: undefined;
+  UpdateInvoice: { invoiceId: string | undefined };
   InvoiceDetail: { invoiceId: string };
 };
 

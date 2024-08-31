@@ -16,8 +16,6 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
 } from "firebase/auth";
 import { Feather } from "@expo/vector-icons";
 import { app } from "../firebase";
