@@ -32,6 +32,11 @@ type Props = {
   route: UpdateInvoiceScreenRouteProp;
 };
 
+type FirebaseTimestamp = {
+  seconds: number;
+  nanoseconds: number;
+};
+
 type InvoiceItem = {
   id: string;
   description: string;
@@ -240,6 +245,7 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
       <ScrollView className="flex-1 px-6 pt-6">
+
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
           {renderInput(
             "Invoice Number",
@@ -261,6 +267,7 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
             <Text>{formatDate(invoice.dueDate)}</Text>
           </View>
         </View>
+
 
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
           <Text className="text-xl font-semibold text-gray-800 mb-4">
