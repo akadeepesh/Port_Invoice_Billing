@@ -34,6 +34,11 @@ type Props = {
   route: UpdateInvoiceScreenRouteProp;
 };
 
+type FirebaseTimestamp = {
+  seconds: number;
+  nanoseconds: number;
+};
+
 type InvoiceItem = {
   id: string;
   description: string;
@@ -322,39 +327,8 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
       <ScrollView className="flex-1 px-6 pt-6">
         <Text className="text-3xl font-bold text-gray-800 mb-6">
-          Update Invoice
+          Update Invoice #{invoice.invoiceNumber}
         </Text>
-
-        <View className="bg-white rounded-xl shadow-md p-6 mb-6">
-          {renderInput(
-            "Invoice Number",
-            invoice.invoiceNumber,
-            (value) => handleChange("invoiceNumber", value),
-            "Enter invoice number",
-            "numeric"
-          )}
-
-          <View className="mb-4">
-            <Text className="text-gray-600 mb-1">Invoice Date</Text>
-            <TouchableOpacity
-              className="border border-gray-300 rounded-lg px-3 py-2 bg-white flex-row justify-between items-center"
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
-              <Feather name="calendar" size={20} color="#4B5563" />
-            </TouchableOpacity>
-          </View>
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={invoice.invoiceDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
-        </View>
-
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
           <Text className="text-xl font-semibold text-gray-800 mb-4">
             Bill To

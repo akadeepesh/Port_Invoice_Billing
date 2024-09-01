@@ -66,11 +66,15 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const formatDate = (date: Date | string | any) => {
-    console.log(typeof date);
+  const formatDate = (date: Date | string | any | FirebaseTimestamp) => {
+    console.log(typeof date, date);
     if (typeof date === "string") {
       console.log("Converting string to date", date);
       return date;
+    }
+    if (typeof date === "object") {
+      const object_date = new Date(date.seconds * 1000);
+      return object_date.toLocaleDateString();
     }
     return date.toLocaleDateString();
   };
