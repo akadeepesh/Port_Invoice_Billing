@@ -15,19 +15,17 @@ import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
 import { Feather } from "@expo/vector-icons";
 import { getInvoiceById } from "../services/getInvoiceById";
-
 import { deleteInvoice } from "../services/deleteInvoice";
-import { updateInvoice } from "../services/updateInvoice";
 import {
   Menu,
   MenuOptions,
   MenuOption,
   MenuTrigger,
 } from "react-native-popup-menu";
-import UpdateInvoiceScreen from "./UpdateInvoiceScreen";
 
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
 import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
+import { downloadInvoicePDF } from "../functions/downloadInvoicePDF";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -138,8 +136,12 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     console.log(`Selected option: ${option}`);
     if (option === "Print") {
       await generateInvoicePDF(invoice as InvoiceData);
-    } else if (option === "Save to Cloud") {
-      Alert.alert("Your file has successfully Saved to Cloud");
+    } else if (option === "Download") {
+      const filePath = await downloadInvoicePDF(invoice as InvoiceData);
+      Alert.alert(
+        "Success",
+        `Your file has been successfully saved to: ${filePath}`
+      );
     } else if (option === "Email") {
       await sendInvoiceByEmail(invoice as InvoiceData);
       Alert.alert("Your file has successfully sent to Email");
@@ -429,30 +431,28 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               Download Options
             </Text>
             <TouchableOpacity
-              className="bg-green-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
+              className="bg-blue-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
               onPress={() => handleDownloadOption("Print")}
             >
               <Feather
-                name="printer"
+                name="send"
                 size={24}
                 color="white"
                 style={{ marginRight: 16 }}
               />
-              <Text className="text-lg font-semibold text-white">Print</Text>
+              <Text className="text-lg font-semibold text-white">Share</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="bg-blue-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
-              onPress={() => handleDownloadOption("Save to Cloud")}
+              className="bg-green-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
+              onPress={() => handleDownloadOption("Download")}
             >
               <Feather
-                name="cloud"
+                name="download"
                 size={24}
                 color="white"
                 style={{ marginRight: 16 }}
               />
-              <Text className="text-lg font-semibold text-white">
-                Save to Cloud
-              </Text>
+              <Text className="text-lg font-semibold text-white">Download</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-gray-800 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"

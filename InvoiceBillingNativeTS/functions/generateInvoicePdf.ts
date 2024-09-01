@@ -1,14 +1,12 @@
-
-import { generateInvoiceHTML } from './generateInvoiceHTML';
-import {printToFileAsync} from 'expo-print';
-import {shareAsync} from 'expo-sharing';
+import { generateInvoiceHTML } from "./generateInvoiceHTML";
+import { printToFileAsync } from "expo-print";
+import { shareAsync } from "expo-sharing";
 type InvoiceStatus = "paid" | "pending" | "overdue";
 
 type InvoiceItem = {
   id: string;
   description: string;
   amount: string;
-
 };
 
 type InvoiceData = {
@@ -37,11 +35,8 @@ type InvoiceData = {
 };
 
 export const generateInvoicePDF = async (data: InvoiceData): Promise<void> => {
-  const html = generateInvoiceHTML(data); 
-  
-    const file=await printToFileAsync({html:html,base64:false});
-    await shareAsync(file.uri);
-  
+  const html = generateInvoiceHTML(data);
 
-
+  const file = await printToFileAsync({ html: html, base64: false });
+  await shareAsync(file.uri);
 };
