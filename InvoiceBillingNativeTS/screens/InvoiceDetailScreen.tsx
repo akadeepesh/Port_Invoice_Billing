@@ -134,17 +134,21 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleDownloadOption = async (option: string) => {
     // Implement the logic for each download option
     console.log(`Selected option: ${option}`);
+
     if (option === "Print") {
       await generateInvoicePDF(invoice as InvoiceData);
     } else if (option === "Download") {
+      setLoading(true);
       const filePath = await downloadInvoicePDF(invoice as InvoiceData);
       Alert.alert(
         "Success",
         `Your file has been successfully saved to: ${filePath}`
       );
+      setLoading(false);
     } else if (option === "Email") {
+      setLoading(true);
       await sendInvoiceByEmail(invoice as InvoiceData);
-      Alert.alert("Your file has successfully sent to Email");
+      setLoading(false);
     }
     hidePopup();
   };
