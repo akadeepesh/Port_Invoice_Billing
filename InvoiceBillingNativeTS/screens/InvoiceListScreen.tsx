@@ -72,7 +72,7 @@ const InvoiceListScreen: React.FC<Props> = ({ navigation }) => {
       console.log("Converting string to date", date);
       return date;
     }
-    return date.toLocaleDateString();
+    return date.toString().split("T")[0];
   };
 
   const formatAmount = (amount: number | string) => {

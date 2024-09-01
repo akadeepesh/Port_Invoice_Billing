@@ -28,6 +28,7 @@ import UpdateInvoiceScreen from "./UpdateInvoiceScreen";
 
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
 import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
+import { downloadPdf } from "../functions/downloadPDF";
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -108,7 +109,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       console.log("Converting string to date", date);
       return date;
     }
-    return date.toLocaleDateString();
+    return date.toString();
   };
 
   const getStatusColor = (status: string) => {
@@ -128,12 +129,11 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     // Implement the logic for each download option
     console.log(`Selected option: ${option}`);
     if (option === "Print") {
+      await downloadPdf(invoice as InvoiceData);
+    } else if (option === "ShareInvoice") {
       await generateInvoicePDF(invoice as InvoiceData);
-    } else if (option === "Save to Cloud") {
-      Alert.alert("Your file has successfully Saved to Cloud");
     } else if (option === "Email") {
       await sendInvoiceByEmail(invoice as InvoiceData);
-      Alert.alert("Your file has successfully sent to Email");
     }
     hidePopup();
   };
@@ -433,7 +433,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-blue-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
-              onPress={() => handleDownloadOption("Save to Cloud")}
+              onPress={() => handleDownloadOption("ShareInvoice")}
             >
               <Feather
                 name="cloud"
@@ -442,7 +442,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 style={{ marginRight: 16 }}
               />
               <Text className="text-lg font-semibold text-white">
-                Save to Cloud
+                Share Invoice
               </Text>
             </TouchableOpacity>
             <TouchableOpacity

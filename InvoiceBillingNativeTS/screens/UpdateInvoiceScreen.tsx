@@ -8,13 +8,11 @@ import {
   Alert,
   SafeAreaView,
   StatusBar,
-  FlatList,
   ActivityIndicator,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Feather } from "@expo/vector-icons";
 import { updateInvoice } from "../services/updateInvoice";
 import { getInvoiceById } from "../services/getInvoiceById";
@@ -66,18 +64,10 @@ type InvoiceData = {
   status: InvoiceStatus;
 };
 
-const GST_RATE = 0.08; // 8% GST
-
 const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
   const { invoiceId } = route.params;
   const [invoice, setInvoice] = useState<InvoiceData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [newItem, setNewItem] = useState<InvoiceItem>({
-    id: "",
-    description: "",
-    amount: "",
-  });
 
   useEffect(() => {
     if (invoiceId) {
@@ -86,12 +76,6 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
       setLoading(false);
     }
   }, [invoiceId]);
-
-  useEffect(() => {
-    if (invoice) {
-      calculateTotals();
-    }
-  }, [invoice?.items]);
 
   const fetchInvoice = async () => {
     if (!invoiceId) return;
@@ -106,26 +90,16 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
       setLoading(false);
     }
   };
-
-  const calculateTotals = () => {
-    if (!invoice) return;
-
-    const subtotal = invoice.items.reduce(
-      (total, item) => total + parseFloat(item.amount || "0"),
-      0
-    );
-    const gstAmount = subtotal * GST_RATE;
-    const totalAmount = subtotal + gstAmount;
-
-    setInvoice((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        subtotal,
-        gstAmount,
-        totalAmount,
-      };
-    });
+  const formatDate = (date: Date | string | any) => {
+    console.log(typeof date);
+    if (typeof date === "string") {
+      console.log("Converting string to date", date);
+      return date;
+    }
+    return date.toLocaleDateString();
+  };
+  const formatAmount = (amount: number | string) => {
+    return Number(amount).toFixed(2);
   };
 
   const handleChange = (name: keyof InvoiceData, value: string | Date) => {
@@ -134,6 +108,39 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
       return { ...prev, [name]: value };
     });
   };
+  const renderReadOnlyInvoiceItems = () => (
+    <>
+      {invoice?.items.map((item, index) => (
+        <View
+          key={item.id}
+          className="flex-row justify-between mb-2 pb-2 border-b border-gray-200"
+        >
+          <Text className="text-gray-600">{item.description}</Text>
+          <Text className="font-medium text-gray-800">
+            ${formatAmount(item.amount)}
+          </Text>
+        </View>
+      ))}
+      <View className="mt-4 pt-4 flex-row justify-between items-center">
+        <Text className="text-lg font-semibold text-gray-800">Subtotal</Text>
+        <Text className="text-xl font-bold text-gray-800">
+          ${invoice?.subtotal}
+        </Text>
+      </View>
+      <View className="mt-2 flex-row justify-between items-center">
+        <Text className="text-lg font-semibold text-gray-800">GST</Text>
+        <Text className="text-xl font-bold text-gray-800">
+          ${invoice?.gstAmount}
+        </Text>
+      </View>
+      <View className="mt-4 pt-4 border-t border-gray-200 flex-row justify-between items-center">
+        <Text className="text-xl font-semibold text-gray-800">Total</Text>
+        <Text className="text-2xl font-bold text-blue-600">
+          ${invoice?.totalAmount}
+        </Text>
+      </View>
+    </>
+  );
 
   const handleNestedChange = (
     section: "billTo" | "from",
@@ -145,44 +152,6 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
       return {
         ...prev,
         [section]: { ...prev[section], [name]: value },
-      };
-    });
-  };
-
-  const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-    setShowDatePicker(false);
-    if (selectedDate && invoice) {
-      handleChange("invoiceDate", selectedDate);
-      const newDueDate = new Date(selectedDate);
-      newDueDate.setDate(newDueDate.getDate() + 30);
-      handleChange("dueDate", newDueDate);
-    }
-  };
-
-  const handleAddItem = () => {
-    if (newItem.description && newItem.amount && invoice) {
-      setInvoice((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          items: [...prev.items, { ...newItem, id: Date.now().toString() }],
-        };
-      });
-      setNewItem({ id: "", description: "", amount: "" });
-    } else {
-      Alert.alert(
-        "Error",
-        "Please enter both description and amount for the item."
-      );
-    }
-  };
-
-  const handleRemoveItem = (id: string) => {
-    setInvoice((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        items: prev.items.filter((item) => item.id !== id),
       };
     });
   };
@@ -211,10 +180,6 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
         "Error",
         "Please enter a valid 10-digit phone number for From."
       );
-      return false;
-    }
-    if (invoice.items.length === 0) {
-      Alert.alert("Error", "Please add at least one item to the invoice.");
       return false;
     }
     return true;
@@ -271,60 +236,10 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
     </View>
   );
 
-  const renderItemInput = () => (
-    <View className="mb-4 bg-gray-100 p-4 rounded-lg">
-      <Text className="text-lg font-semibold mb-2">Add New Item</Text>
-      {renderInput(
-        "Description",
-        newItem.description,
-        (value) => setNewItem((prev) => ({ ...prev, description: value })),
-        "Enter item description"
-      )}
-      {renderInput(
-        "Amount",
-        newItem.amount,
-        (value) => setNewItem((prev) => ({ ...prev, amount: value })),
-        "Enter item amount",
-        "numeric"
-      )}
-      <TouchableOpacity
-        className="bg-green-500 py-2 px-4 rounded-lg flex-row justify-center items-center mt-2"
-        onPress={handleAddItem}
-      >
-        <Feather
-          name="plus"
-          size={20}
-          color="white"
-          style={{ marginRight: 8 }}
-        />
-        <Text className="text-white font-semibold">Add Item</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderItem = ({ item }: { item: InvoiceItem }) => (
-    <View className="flex-row justify-between items-center bg-white p-4 rounded-lg mb-2 shadow-sm">
-      <View className="flex-1 mr-4">
-        <Text className="font-semibold">{item.description}</Text>
-        <Text className="text-gray-600">${item.amount}</Text>
-      </View>
-      <TouchableOpacity
-        className="bg-red-500 p-2 rounded-full"
-        onPress={() => handleRemoveItem(item.id)}
-      >
-        <Feather name="trash-2" size={16} color="white" />
-      </TouchableOpacity>
-    </View>
-  );
-
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
       <ScrollView className="flex-1 px-6 pt-6">
-        <Text className="text-3xl font-bold text-gray-800 mb-6">
-          Update Invoice
-        </Text>
-
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
           {renderInput(
             "Invoice Number",
@@ -336,23 +251,15 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
 
           <View className="mb-4">
             <Text className="text-gray-600 mb-1">Invoice Date</Text>
-            <TouchableOpacity
-              className="border border-gray-300 rounded-lg px-3 py-2 bg-white flex-row justify-between items-center"
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text>{invoice.invoiceDate.toLocaleDateString()}</Text>
-              <Feather name="calendar" size={20} color="#4B5563" />
-            </TouchableOpacity>
+
+            <Text>{formatDate(invoice.invoiceDate)}</Text>
           </View>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={invoice.invoiceDate}
-              mode="date"
-              display="default"
-              onChange={handleDateChange}
-            />
-          )}
+          <View className="mb-4">
+            <Text className="text-gray-600 mb-1">Due Date</Text>
+
+            <Text>{formatDate(invoice.dueDate)}</Text>
+          </View>
         </View>
 
         <View className="bg-white rounded-xl shadow-md p-6 mb-6">
@@ -419,16 +326,39 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
           <Text className="text-xl font-semibold text-gray-800 mb-4">
             Invoice Items
           </Text>
-          <FlatList
-            data={invoice.items}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            ListEmptyComponent={
-              <Text className="text-gray-500 italic">No items added yet.</Text>
-            }
-            className="mb-4"
-          />
-          {renderItemInput()}
+          {invoice?.items.map((item, index) => (
+            <View
+              key={item.id}
+              className="flex-row justify-between mb-2 pb-2 border-b border-gray-200"
+            >
+              <Text className="text-gray-600">
+                {index + 1}. {item.description}
+              </Text>
+              <Text className="font-medium text-gray-800">
+                ${formatAmount(item.amount)}
+              </Text>
+            </View>
+          ))}
+          <View className="mt-4 pt-4 flex-row justify-between items-center">
+            <Text className="text-lg font-semibold text-gray-800">
+              Subtotal
+            </Text>
+            <Text className="text-xl font-bold text-gray-800">
+              ${invoice?.subtotal}
+            </Text>
+          </View>
+          <View className="mt-2 flex-row justify-between items-center">
+            <Text className="text-lg font-semibold text-gray-800">GST</Text>
+            <Text className="text-xl font-bold text-gray-800">
+              ${invoice?.gstAmount}
+            </Text>
+          </View>
+          <View className="mt-4 pt-4 border-t border-gray-200 flex-row justify-between items-center">
+            <Text className="text-xl font-semibold text-gray-800">Total</Text>
+            <Text className="text-2xl font-bold text-blue-600">
+              ${invoice?.totalAmount}
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity
