@@ -133,13 +133,6 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
     });
   };
 
-  const handleChange = (name: keyof InvoiceData, value: string | Date) => {
-    setInvoice((prev) => {
-      if (!prev) return null;
-      return { ...prev, [name]: value };
-    });
-  };
-
   const handleNestedChange = (
     section: "billTo" | "from",
     name: keyof InvoiceData["billTo"],
@@ -152,16 +145,6 @@ const UpdateInvoiceScreen: React.FC<Props> = ({ navigation, route }) => {
         [section]: { ...prev[section], [name]: value },
       };
     });
-  };
-
-  const handleDateChange = (event: any, selectedDate: Date | undefined) => {
-    setShowDatePicker(false);
-    if (selectedDate && invoice) {
-      handleChange("invoiceDate", selectedDate);
-      const newDueDate = new Date(selectedDate);
-      newDueDate.setDate(newDueDate.getDate() + 30);
-      handleChange("dueDate", newDueDate);
-    }
   };
 
   const handleAddItem = () => {

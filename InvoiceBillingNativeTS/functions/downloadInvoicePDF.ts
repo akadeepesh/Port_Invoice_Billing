@@ -1,7 +1,7 @@
 import * as FileSystem from "expo-file-system";
 import { Platform } from "react-native";
 import { printToFileAsync } from "expo-print";
-import { generateInvoiceHTML } from "./generateInvoiceHTML"; // Adjust the import path as necessary
+import { generateInvoiceHTML } from "./generateInvoiceHTML";
 
 type InvoiceStatus = "paid" | "pending" | "overdue";
 

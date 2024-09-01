@@ -28,7 +28,24 @@ type InvoiceData = {
   userId: string;
   status: InvoiceStatus;
 };
+type FirebaseTimestamp = {
+  seconds: number;
+  nanoseconds: number;
+};
+
 export const generateInvoiceHTML = (data: InvoiceData): string => {
+  const formatDate = (date: Date | string | any | FirebaseTimestamp) => {
+    console.log(typeof date, date);
+    if (typeof date === "string") {
+      console.log("Converting string to date", date);
+      return date;
+    }
+    if (typeof date === "object") {
+      const object_date = new Date(date.seconds * 1000);
+      return object_date.toLocaleDateString();
+    }
+    return date.toLocaleDateString();
+  };
   const itemsHTML = data.items
     .map(
       (item) => `
@@ -103,9 +120,9 @@ export const generateInvoiceHTML = (data: InvoiceData): string => {
       </head>
       <body>
         <h1>INVOICE</h1>
-        <p><strong>Invoice #:</strong> ${data.invoiceNumber}</p>
-        <p><strong>Date:</strong> ${data.invoiceDate}</p>
-        <p><strong>Due Date:</strong> ${data.dueDate}</p>
+        <p><strong>Invoice :</strong> #${data.invoiceNumber}</p>
+        <p><strong>Date:</strong> ${formatDate(data.invoiceDate)}</p>
+        <p><strong>Due Date:</strong> ${formatDate(data.dueDate)}</p>
         
         <div class="flex-container">
           <div>
