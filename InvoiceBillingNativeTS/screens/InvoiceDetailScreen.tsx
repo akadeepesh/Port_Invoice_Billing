@@ -25,9 +25,7 @@ import {
 
 import { generateInvoicePDF } from "../functions/generateInvoicePdf";
 import { sendInvoiceByEmail } from "../functions/sendInvoiceByEmail";
-
 import { downloadInvoicePDF } from "../functions/downloadInvoicePDF";
-
 
 type InvoiceDetailScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -113,13 +111,11 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       console.log("Converting string to date", date);
       return date;
     }
-
     if (typeof date === "object") {
       const object_date = new Date(date.seconds * 1000);
       return object_date.toLocaleDateString();
     }
     return date.toLocaleDateString();
-
   };
 
   const getStatusColor = (status: string) => {
@@ -139,19 +135,16 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     // Implement the logic for each download option
     console.log(`Selected option: ${option}`);
     if (option === "Print") {
-      await downloadPdf(invoice as InvoiceData);
-    } else if (option === "ShareInvoice") {
       await generateInvoicePDF(invoice as InvoiceData);
-
     } else if (option === "Download") {
       const filePath = await downloadInvoicePDF(invoice as InvoiceData);
       Alert.alert(
         "Success",
         `Your file has been successfully saved to: ${filePath}`
       );
-
     } else if (option === "Email") {
       await sendInvoiceByEmail(invoice as InvoiceData);
+      Alert.alert("Your file has successfully sent to Email");
     }
     hidePopup();
   };
@@ -450,10 +443,8 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               <Text className="text-lg font-semibold text-white">Share</Text>
             </TouchableOpacity>
             <TouchableOpacity
-
               className="bg-green-500 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"
               onPress={() => handleDownloadOption("Download")}
-
             >
               <Feather
                 name="download"
@@ -461,9 +452,7 @@ const InvoiceDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 color="white"
                 style={{ marginRight: 16 }}
               />
-
               <Text className="text-lg font-semibold text-white">Download</Text>
-
             </TouchableOpacity>
             <TouchableOpacity
               className="bg-gray-800 py-4 px-6 rounded-xl mb-3 flex-row items-center shadow-md"

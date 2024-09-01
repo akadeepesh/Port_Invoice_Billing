@@ -13,7 +13,7 @@ export const sendInvoiceByEmail = async (invoiceData) => {
   console.log(email);
   const html = generateInvoiceHTML(invoiceData);
   const templateParams = {
-    from_name: "Decoders",
+    from_name: "DeCoders",
     to_name: userName,
     reply_to: email,
     message: html,

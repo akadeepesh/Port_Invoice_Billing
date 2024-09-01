@@ -35,9 +35,7 @@ type InvoiceData = {
 };
 
 export const generateInvoicePDF = async (data: InvoiceData): Promise<void> => {
-
   const html = generateInvoiceHTML(data);
-
 
   const file = await printToFileAsync({ html: html, base64: false });
   await shareAsync(file.uri);
