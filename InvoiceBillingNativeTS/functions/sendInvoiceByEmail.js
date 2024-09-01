@@ -4,9 +4,9 @@ import emailjs from "@emailjs/react-native";
 import { Alert } from "react-native";
 
 export const sendInvoiceByEmail = async (invoiceData) => {
-  const serviceId = process.env.EMAILJS_SERVICE_ID;
-  const templateId = process.env.EMAILJS_TEMPLATE_ID;
-  const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+  const serviceId = "service_s3z257f";
+  const templateId = "template_siujz6m";
+  const publicKey = "zfkQj_HszJHPvCyVO";
   const auth = getAuth();
   const email = auth?.currentUser?.email;
   const userName = auth?.currentUser?.displayName;
