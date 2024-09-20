@@ -1,68 +1,81 @@
 # Invoice Billing Native TS
 
-This is an Expo React Native application for invoice billing, built with TypeScript.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/dac5dd58-585f-440a-926c-adcf6ed474fe" alt="Invoice Billing Logo">
+</p>
 
-## Project Structure
+<p align="center">
+  A React Native Expo application for efficient invoice management, built with TypeScript.
+</p>
 
-```
-PORT INVOICE BILLING/
-└── InvoiceBillingNativeTS/
-    ├── expo/
-    ├── assets/
-    ├── components/
-    │   ├── AuthForm.tsx
-    │   └── TestButton.tsx
-    ├── node_modules/
-    ├── screens/
-    │   ├── CreateInvoiceScreen.tsx
-    │   ├── HomeScreen.tsx
-    │   ├── LoginScreen.tsx
-    │   ├── SignupScreen.tsx
-    │   └── ViewInvoiceScreen.tsx
-    ├── types/
-    ├── navigation.ts
-    ├── .gitignore
-    ├── app.json
-    ├── App.tsx
-    ├── babel.config.js
-    ├── global.css
-    ├── metro.config.js
-    ├── nativewind-env.d.ts
-    ├── package-lock.json
-    ├── package.json
-    ├── tailwind.config.js
-    ├── tsconfig.json
-    └── README.md
-```
+## 🚀 Features
 
-## Key Components
+- Create, Read, Update, and Delete invoices
+- Download invoices for offline access
+- Share invoices across various platforms
+- Email invoices directly from the app
+- User authentication and secure data storage
 
-- `App.tsx`: The main application component.
-- `screens/`: Contains the main screens of the application.
-- `components/`: Reusable UI components.
-- `types/`: TypeScript type definitions.
-- `navigation.ts`: Navigation configuration.
+## 🛠️ Built With
 
-## Setup and Installation
+- [React Native](https://reactnative.dev/) - The mobile app framework
+- [Expo](https://expo.dev/) - The app development platform
+- [TypeScript](https://www.typescriptlang.org/) - For type-safe code
+- [Firebase](https://firebase.google.com/) - Backend and database
+- [NativeWind](https://www.nativewind.dev/) - For styling
 
-1. Ensure you have Node.js and npm installed.
-2. Navigate to the project directory and run `npm install`.
-3. Start the application with `npm start` or `npx expo start`.
+## 🏁 Getting Started
 
-## Available Scripts
+### Prerequisites
 
-- `npm start` or `npx expo start`: Starts the Expo development server.
-- `npm run android`: Runs the app on an Android emulator or connected device.
-- `npm run ios`: Runs the app on an iOS simulator or connected device.
-- `npm run web`: Runs the app in a web browser.
+- Node.js
+- npm or yarn
+- Expo CLI
 
-## Dependencies
+### Installation
 
-This project uses several key dependencies:
+1. Clone the repo
+   ```sh
+   git clone https://github.com/your_username/invoice-billing-native-ts.git
+   ```
+2. Install NPM packages
+   ```sh
+   npm install
+   ```
+3. Start the Expo development server
+   ```sh
+   npx expo start
+   ```
 
-- Expo
-- React Native
-- TypeScript
-- NativeWind (for styling)
+## 📱 Usage
 
-For a full list of dependencies, please refer to the `package.json` file.
+- Use the app to create new invoices
+- View, edit, or delete existing invoices
+- Download invoices or share them via various platforms
+- Email invoices directly to clients
+
+## 🤝 Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 👥 Contributors
+
+<p align="center">
+  <a href="https://github.com/akadeepesh/Port_Invoice_Billing/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=akadeepesh/Port_Invoice_Billing" />
+  </a>
+</p>
+
+## 🙏 Acknowledgements
+
+A special thanks to [Nabani Chowdhury](https://github.com/nabanichowdhury) for making this project possible. Your guidance and support were invaluable in bringing this app to life.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
